@@ -2,6 +2,7 @@ import express from "express"
 import path from "path"
 import serverRoutes from "./routes/router.js"
 import mongoose from "mongoose"
+import cors from "cors"
 
 
 const __dirname = path.resolve()
@@ -10,6 +11,7 @@ const app = express()
 const DB_URL = "mongodb+srv://user:user@cluster0.586yh.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
 
 
+app.use(cors());
 app.use(express.json())
 app.use(express.static(path.resolve(__dirname, "static")))
 app.use(serverRoutes)
