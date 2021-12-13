@@ -1,74 +1,32 @@
-const express = require("express")
+import express from "express"
+import path from "path"
+import serverRoutes from "./routes/router.js"
+import mongoose from "mongoose"
+
+
+const __dirname = path.resolve()
+const PORT = process.env.PORT || 80
 const app = express()
+const DB_URL = "mongodb+srv://user:user@cluster0.586yh.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
 
-const PORT = process.env.PORT || 3333
-
-
-let TASKS = [
-    {
-        id: 1,
-        title: "Купить кофе",
-        completed: false,
-        order: 1,
-    },
-    {
-        id: 2,
-        title: "Забрать посылку",
-        completed: false,
-        order: 2,
-    },
-    {
-        id: 3,
-        title: "Втретиться с друзьями",
-        completed: false,
-        order: 3,
-    },
-]
 
 app.use(express.json())
-app.get("/api", (req, res) => {
-    res.json(TASKS)
-})
+app.use(express.static(path.resolve(__dirname, "static")))
+app.use(serverRoutes)
 
-app.post("/api", (req, res) => {
-    const task = {
-        id: Date.now(),
-        title: req.body.title,
-        completed: false,
-        order: TASKS.length + 30
+async function startApp () {
+    try {
+        await mongoose.connect(DB_URL)
+        app.listen(PORT, () => {
+            console.log(`Сервер запущен на порту ${PORT}`)
+        })
+    } catch (e) {
+        console.log(e)
     }
+}
 
-    TASKS.push(task)
-    res.status(201).json(task)
-})
+startApp()
 
-app.delete("/api", (req, res) => {
-    TASKS = TASKS.filter(task => req.body.id !== task.id)
-    res.status(200).json({message: 'Задача была удалена'})
-})
-
-app.put('/api', (req, res) => {
-    const idx = TASKS.findIndex(t => t.id === req.body.id)
-    TASKS[idx].completed = !TASKS[idx].completed
-    res.json({message: 'Задача была изменена'})
-})
-
-app.put('/api/tasks', (req, res) => {
-    const idx = TASKS.findIndex(t => t.id === req.body.id)
-    TASKS[idx].title = req.body.title
-    res.json({message: 'Задача была изменена'})
-})
-
-app.put('/api/order', (req, res) => {
-    const idx = TASKS.findIndex(t => t.id === req.body.id)
-    TASKS[idx].order = req.body.order
-    res.json({message: 'Порядок задачи был изменен'})
-})
-
-
-app.listen(PORT, () => {
-    console.log(`Сервер запущен на порту ${PORT}`)
-})
 
 
 
